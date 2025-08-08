@@ -92,9 +92,13 @@ public:
 
     // Run inference.
     // Input format [input][batch][cv::cuda::GpuMat]
+    // Output format [cv::cuda::GpuMat]
+    bool runInference(const std::vector<std::vector<cv::cuda::GpuMat>> &inputs, cv::cuda::GpuMat &output) override;
+
+    // Run inference.
+    // Input format [input][batch][cv::cuda::GpuMat]
     // Output format [cv::Mat]
     bool runInference(const std::vector<std::vector<cv::cuda::GpuMat>> &inputs, cv::Mat &output) override;
-
 
     // Run inference.
     // Input format [cv::Mat]
@@ -124,6 +128,7 @@ public:
     // Utility method for extracting an ROI from an image and rescaling it to the specified dimensions.
     // The ROI is extracted from the top left of the image. This function is the complement of 
     // the above function for networks that predict output maps.
+    static void extractAndResizeROI(const cv::cuda::GpuMat &input, cv::cuda::GpuMat &output, size_t roi_h, size_t roi_w, size_t height, size_t width);
     static void extractAndResizeROI(const cv::Mat &input, cv::Mat &output, size_t roi_h, size_t roi_w, size_t height, size_t width);
 
 
@@ -156,6 +161,11 @@ private:
     void getDeviceNames(std::vector<std::string> &deviceNames);
 
     void clearGpuBuffers();
+
+    // Run inference. Output GpuMat wraps an internal data buffer and should be cloned or downloaded immediately.
+    // Input format [input][batch][cv::cuda::GpuMat]
+    // Output format [cv::cuda::GpuMat]
+    bool runInferenceWithNoGpuCopy(const std::vector<std::vector<cv::cuda::GpuMat>> &inputs, cv::cuda::GpuMat &output);
 
     // Normalization, scaling, and mean subtraction of inputs
     std::array<float, 3> m_subVals{};
